@@ -5,6 +5,7 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private InventorySlotUI[] slotUIs;
     [SerializeField] private PlayerHand playerHand;
+    [SerializeField] private PlayerFourDirectionMove playerMovement;
 
     private bool isOpen = false;
 
@@ -57,17 +58,29 @@ public class InventoryUI : MonoBehaviour
     public void Open()
     {
         isOpen = true;
+
         canvasGroup.alpha = 1f;
         canvasGroup.interactable = true;
         canvasGroup.blocksRaycasts = true;
+
+        if (playerMovement != null)
+        {
+            playerMovement.enabled = false;
+        }
     }
 
     public void Close()
     {
         isOpen = false;
+
         canvasGroup.alpha = 0f;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
+
+        if (playerMovement != null)
+        {
+            playerMovement.enabled = true;
+        }
     }
 
     public void TryTakeItemToHand(int slotIndex)

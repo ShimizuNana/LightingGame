@@ -48,4 +48,9 @@ public class PlayerFourDirectionMove : MonoBehaviour
     {
         rb.velocity = moveInput * moveSpeed;
     }
+
+    void OnDisable()
+    {
+        rb.velocity = Vector2.zero;
+    }
 }
