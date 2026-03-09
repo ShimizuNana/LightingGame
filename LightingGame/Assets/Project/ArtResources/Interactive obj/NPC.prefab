@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7947911505737750450}
   - component: {fileID: 5391186442010338111}
   m_Layer: 20
-  m_Name: PF Props - Statue 01
+  m_Name: NPC
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
