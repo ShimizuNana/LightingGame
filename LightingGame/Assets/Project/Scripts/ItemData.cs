@@ -9,8 +9,11 @@ public class ItemData : ScriptableObject
     [TextArea] public string description;
     public ItemType itemType;
 
-    [Header("Pedestal Settings")]
+    [Header("Placement Console")]
     public bool canPlaceOnPlacementConsole = false;
+
+    [Header("Change Console")]
+    public bool canPlaceOnChangeConsole = false;
 
     [Header("Glass Settings")]
     public bool isColoredGlass = false;

@@ -18,6 +18,7 @@ MonoBehaviour:
   description: 
   itemType: 1
   canPlaceOnPlacementConsole: 1
+  canPlaceOnChangeConsole: 1
   isColoredGlass: 1
   glassColor: 1
   isMirror: 0
