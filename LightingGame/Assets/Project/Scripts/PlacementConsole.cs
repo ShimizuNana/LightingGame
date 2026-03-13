@@ -315,21 +315,4 @@ public class PlacementConsole : MonoBehaviour
     {
         Debug.LogError("[PlacementConsole] " + gameObject.name + " : " + message, this);
     }
-
-    public bool HasPlacedItem()
-    {
-        return placedObjectDisplay != null && placedObjectDisplay.HasItem();
-    }
-
-    public ItemData GetPlacedItem()
-    {
-        if (placedObjectDisplay == null) return null;
-        return placedObjectDisplay.GetItem();
-    }
-
-    public float GetPlacedItemAngle()
-    {
-        if (placedObjectDisplay == null) return 0f;
-        return placedObjectDisplay.GetRotationAngle();
-    }
 }
