@@ -12,9 +12,9 @@ TagManager:
   - Water
   - UI
   - 
-  - 
-  - 
-  - 
+  - LightInteract
+  - LightBlock
+  - LightReceiver
   - 
   - 
   - 
