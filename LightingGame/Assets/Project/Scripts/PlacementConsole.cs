@@ -332,4 +332,12 @@ public class PlacementConsole : MonoBehaviour
         if (placedObjectDisplay == null) return 0f;
         return placedObjectDisplay.GetRotationAngle();
     }
+
+    [SerializeField] private Transform beamExitPoint;
+
+    public Vector2 GetBeamExitPoint()
+    {
+        if (beamExitPoint != null) return beamExitPoint.position;
+        return transform.position;
+    }
 }

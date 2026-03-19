@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(LineRenderer))]
 public class LightEmitter : MonoBehaviour
 {
     [Header("Beam Settings")]
@@ -15,16 +14,29 @@ public class LightEmitter : MonoBehaviour
 
     [Header("Beam Origin")]
     [SerializeField] private Transform beamOrigin;
-    [SerializeField] private float hitPointOffset = 0.01f;
+
+    [Header("Visual Settings")]
+    [SerializeField] private Material lineMaterial;
+    [SerializeField] private float lineWidth = 0.12f;
+    [SerializeField] private int sortingOrder = 10;
 
     [Header("Debug")]
-    [SerializeField] private bool enableDebugLog = false;
+    [SerializeField] private bool enableDebugLog = true;
 
-    private LineRenderer lineRenderer;
+    private readonly List<LineRenderer> segmentRenderers = new List<LineRenderer>();
 
-    private void Awake()
+    private struct BeamSegment
     {
-        lineRenderer = GetComponent<LineRenderer>();
+        public Vector3 start;
+        public Vector3 end;
+        public BeamColor color;
+
+        public BeamSegment(Vector3 start, Vector3 end, BeamColor color)
+        {
+            this.start = start;
+            this.end = end;
+            this.color = color;
+        }
     }
 
     private void Update()
@@ -36,9 +48,8 @@ public class LightEmitter : MonoBehaviour
     {
         ResetReceivers();
 
-        List<Vector3> points = new List<Vector3>();
+        List<BeamSegment> segments = new List<BeamSegment>();
 
-        // 如果有单独的 BeamOrigin，就从 BeamOrigin 发射
         Vector2 currentOrigin = beamOrigin != null
             ? (Vector2)beamOrigin.position
             : (Vector2)transform.position;
@@ -46,72 +57,101 @@ public class LightEmitter : MonoBehaviour
         Vector2 currentDirection = startDirection.normalized;
         BeamColor currentColor = startColor;
 
-        points.Add(currentOrigin);
+        Collider2D lastHitCollider = null;
 
         for (int i = 0; i < maxBounceCount; i++)
         {
-            RaycastHit2D hit = Physics2D.Raycast(currentOrigin, currentDirection, maxDistancePerSegment, hitMask);
+            RaycastHit2D hit = GetNextValidHit(currentOrigin, currentDirection, maxDistancePerSegment, lastHitCollider);
 
             if (hit.collider == null)
             {
                 Vector2 endPoint = currentOrigin + currentDirection * maxDistancePerSegment;
-                points.Add(endPoint);
+                segments.Add(new BeamSegment(currentOrigin, endPoint, currentColor));
 
-                DebugLog("没有命中任何物体，光线结束");
+                DebugLog("没有命中任何物体，本段结束，颜色 = " + currentColor);
                 break;
             }
 
-            points.Add(hit.point);
-            DebugLog("命中物体：" + hit.collider.name);
-
-            // 1. 打到放置型控制台
-            PlacementConsole console = hit.collider.GetComponent<PlacementConsole>();
-            if (console != null && console.HasPlacedItem())
+            PlacementConsole console = hit.collider.GetComponentInParent<PlacementConsole>();
+            if (console != null)
             {
+                Vector2 exitPoint = console.GetBeamExitPoint();
+
+                segments.Add(new BeamSegment(currentOrigin, exitPoint, currentColor));
+                DebugLog("命中放置型控制台：" + hit.collider.name + " | 当前段颜色 = " + currentColor);
+
+                lastHitCollider = hit.collider;
+
+                if (!console.HasPlacedItem())
+                {
+                    DebugLog("控制台为空，光线直接穿过");
+                    currentOrigin = exitPoint;
+                    continue;
+                }
+
                 ItemData item = console.GetPlacedItem();
                 float angle = NormalizeAngle(console.GetPlacedItemAngle());
 
-                if (item != null)
+                if (item == null)
                 {
-                    DebugLog("命中放置型控制台，物品 = " + item.itemName + "，角度 = " + angle);
+                    DebugLog("控制台显示有物品，但 GetPlacedItem() 返回 null，光线停止");
+                    break;
+                }
 
-                    // 有色玻璃：0 / 180 度变色
-                    if (item.isColoredGlass && (Mathf.Approximately(angle, 0f) || Mathf.Approximately(angle, 180f)))
+                DebugLog("控制台物品 = " + item.itemName + "，角度 = " + angle);
+
+                if (item.isColoredGlass)
+                {
+                    if (Mathf.Approximately(angle, 0f) || Mathf.Approximately(angle, 180f))
                     {
                         currentColor = ApplyGlassColor(currentColor, item.glassColor);
+                        DebugLog("有色玻璃生效，光线颜色变为 = " + currentColor);
 
-                        DebugLog("有色玻璃生效，当前光线颜色 = " + currentColor);
+                        currentOrigin = exitPoint;
+                        continue;
+                    }
+                    else
+                    {
+                        DebugLog("有色玻璃角度不正确，光线停止");
+                        break;
+                    }
+                }
 
-                        currentOrigin = hit.point + currentDirection * hitPointOffset;
+                if (item.isMirror)
+                {
+                    if (Mathf.Approximately(angle, 45f) || Mathf.Approximately(angle, 225f))
+                    {
+                        currentDirection = RotateDirection(currentDirection, -90f);
+                        DebugLog("镜子生效，方向旋转 -90 度");
+
+                        currentOrigin = exitPoint;
                         continue;
                     }
 
-                    // 镜子：45 / 225 => -90 度，135 / 315 => +90 度
-                    if (item.isMirror)
+                    if (Mathf.Approximately(angle, 135f) || Mathf.Approximately(angle, 315f))
                     {
-                        if (Mathf.Approximately(angle, 45f) || Mathf.Approximately(angle, 225f))
-                        {
-                            currentDirection = RotateDirection(currentDirection, -90f);
-                            DebugLog("镜子生效，方向旋转 -90 度");
+                        currentDirection = RotateDirection(currentDirection, 90f);
+                        DebugLog("镜子生效，方向旋转 +90 度");
 
-                            currentOrigin = hit.point + currentDirection * hitPointOffset;
-                            continue;
-                        }
-
-                        if (Mathf.Approximately(angle, 135f) || Mathf.Approximately(angle, 315f))
-                        {
-                            currentDirection = RotateDirection(currentDirection, 90f);
-                            DebugLog("镜子生效，方向旋转 +90 度");
-
-                            currentOrigin = hit.point + currentDirection * hitPointOffset;
-                            continue;
-                        }
+                        currentOrigin = exitPoint;
+                        continue;
                     }
+
+                    DebugLog("镜子角度不正确，光线停止");
+                    break;
                 }
+
+                DebugLog("控制台上的物品不改变光线，默认穿过");
+                currentOrigin = exitPoint;
+                continue;
             }
 
-            // 2. 打到接收器
-            LightReceiver receiver = hit.collider.GetComponent<LightReceiver>();
+            segments.Add(new BeamSegment(currentOrigin, hit.point, currentColor));
+            DebugLog("命中物体：" + hit.collider.name + " | 当前段颜色 = " + currentColor);
+
+            lastHitCollider = hit.collider;
+
+            LightReceiver receiver = hit.collider.GetComponentInParent<LightReceiver>();
             if (receiver != null)
             {
                 DebugLog("命中接收器，发送颜色 = " + currentColor);
@@ -119,43 +159,106 @@ public class LightEmitter : MonoBehaviour
                 break;
             }
 
-            // 3. 打到其他阻挡物，停止
             DebugLog("命中阻挡物，光线停止");
             break;
         }
 
-        DrawBeam(points, currentColor);
+        DrawSegments(segments);
     }
 
-    private void DrawBeam(List<Vector3> points, BeamColor color)
+    private RaycastHit2D GetNextValidHit(Vector2 origin, Vector2 direction, float distance, Collider2D ignoreCollider)
     {
-        if (lineRenderer == null) return;
+        RaycastHit2D[] hits = Physics2D.RaycastAll(origin, direction, distance, hitMask);
 
-        lineRenderer.positionCount = points.Count;
-        lineRenderer.SetPositions(points.ToArray());
+        for (int i = 0; i < hits.Length; i++)
+        {
+            if (hits[i].collider == null) continue;
 
-        Color unityColor = ConvertBeamColor(color);
+            if (ignoreCollider != null && hits[i].collider == ignoreCollider)
+                continue;
+
+            if (hits[i].distance <= 0.0001f)
+                continue;
+
+            return hits[i];
+        }
+
+        return new RaycastHit2D();
+    }
+
+    private void DrawSegments(List<BeamSegment> segments)
+    {
+        EnsureSegmentRendererCount(segments.Count);
+
+        for (int i = 0; i < segmentRenderers.Count; i++)
+        {
+            if (i < segments.Count)
+            {
+                segmentRenderers[i].gameObject.SetActive(true);
+                SetupSegmentRenderer(segmentRenderers[i], segments[i]);
+            }
+            else
+            {
+                segmentRenderers[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+    private void EnsureSegmentRendererCount(int count)
+    {
+        while (segmentRenderers.Count < count)
+        {
+            GameObject segmentObj = new GameObject("BeamSegment_" + segmentRenderers.Count);
+            segmentObj.transform.SetParent(transform, false);
+
+            LineRenderer lr = segmentObj.AddComponent<LineRenderer>();
+            lr.useWorldSpace = true;
+            lr.positionCount = 2;
+            lr.widthMultiplier = lineWidth;
+            lr.sortingOrder = sortingOrder;
+
+            if (lineMaterial != null)
+            {
+                lr.material = lineMaterial;
+            }
+
+            segmentRenderers.Add(lr);
+        }
+    }
+
+    private void SetupSegmentRenderer(LineRenderer lr, BeamSegment segment)
+    {
+        lr.positionCount = 2;
+        lr.SetPosition(0, segment.start);
+        lr.SetPosition(1, segment.end);
+
+        Color color = ConvertBeamColor(segment.color);
 
         Gradient gradient = new Gradient();
         gradient.SetKeys(
             new GradientColorKey[]
             {
-            new GradientColorKey(unityColor, 0f),
-            new GradientColorKey(unityColor, 1f)
+                new GradientColorKey(color, 0f),
+                new GradientColorKey(color, 1f)
             },
             new GradientAlphaKey[]
             {
-            new GradientAlphaKey(1f, 0f),
-            new GradientAlphaKey(1f, 1f)
+                new GradientAlphaKey(1f, 0f),
+                new GradientAlphaKey(1f, 1f)
             }
         );
 
-        lineRenderer.colorGradient = gradient;
+        lr.colorGradient = gradient;
+        lr.widthMultiplier = lineWidth;
+
+        if (lineMaterial != null && lr.material != lineMaterial)
+        {
+            lr.material = lineMaterial;
+        }
     }
 
     private BeamColor ApplyGlassColor(BeamColor currentColor, LightColor glassColor)
     {
-        // 第一版先简化：玻璃颜色直接覆盖当前颜色
         switch (glassColor)
         {
             case LightColor.Red:
