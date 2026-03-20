@@ -85,12 +85,20 @@ public class InventoryUI : MonoBehaviour
 
     public void TryTakeItemToHand(int slotIndex)
     {
-        if (playerHand.HasItem()) return;
+        ItemData slotItem = InventorySystem.Instance.GetItemAt(slotIndex);
+        if (slotItem == null) return;
 
-        ItemData item = InventorySystem.Instance.GetItemAt(slotIndex);
-        if (item == null) return;
+        if (!playerHand.HasItem())
+        {
+            playerHand.SetHandItem(slotItem);
+            InventorySystem.Instance.RemoveItemAt(slotIndex);
+            return;
+        }
 
-        playerHand.SetHandItem(item);
-        InventorySystem.Instance.RemoveItemAt(slotIndex);
+        ItemData handItem = playerHand.GetHandItem();
+        if (handItem == null) return;
+
+        playerHand.SetHandItem(slotItem);
+        InventorySystem.Instance.SetItemAt(slotIndex, handItem);
     }
 }

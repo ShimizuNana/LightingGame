@@ -60,4 +60,12 @@ public class InventorySystem : MonoBehaviour
         if (index < 0 || index >= slots.Count) return null;
         return slots[index].item;
     }
+
+    public void SetItemAt(int index, ItemData item)
+    {
+        if (index < 0 || index >= slots.Count) return;
+
+        slots[index].item = item;
+        OnInventoryChanged?.Invoke();
+    }
 }
