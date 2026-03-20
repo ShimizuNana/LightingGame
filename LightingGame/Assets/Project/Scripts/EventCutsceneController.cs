@@ -9,6 +9,7 @@ public class EventCutsceneController : MonoBehaviour
     [SerializeField] private PlayerFourDirectionMove playerMovement;
     [SerializeField] private MechanismController mechanismController;
     [SerializeField] private DoorController targetDoor;
+    [SerializeField] private FogOverlayController fogOverlayController;
 
     [Header("Camera Points")]
     [SerializeField] private Transform mechanismViewPoint;
@@ -65,6 +66,17 @@ public class EventCutsceneController : MonoBehaviour
         }
 
         Debug.Log("事件相机切到机关视角");
+
+        
+        // 先来一点相机震动
+        yield return StartCoroutine(ShakeEventCamera(0.25f, 0.08f));
+
+        // Fog 淡出
+        if (fogOverlayController != null)
+        {
+            yield return StartCoroutine(fogOverlayController.FadeOutFog());
+        }
+        yield return new WaitForSeconds(0.3f); // 等待一点时间，让 Fog 淡出完成
 
         // 4. 播放机关变化
         if (mechanismController != null)
@@ -138,5 +150,31 @@ public class EventCutsceneController : MonoBehaviour
 
         eventCamera.transform.position = endPos;
         eventCamera.transform.rotation = endRot;
+    }
+
+    private IEnumerator ShakeEventCamera(float duration, float strength)
+    {
+        if (eventCamera == null) yield break;
+
+        Vector3 originalPos = eventCamera.transform.position;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+
+            float offsetX = Random.Range(-strength, strength);
+            float offsetY = Random.Range(-strength, strength);
+
+            eventCamera.transform.position = new Vector3(
+                originalPos.x + offsetX,
+                originalPos.y + offsetY,
+                originalPos.z
+            );
+
+            yield return null;
+        }
+
+        eventCamera.transform.position = originalPos;
     }
 }
