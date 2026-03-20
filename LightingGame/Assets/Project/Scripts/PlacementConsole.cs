@@ -163,6 +163,10 @@ public class PlacementConsole : MonoBehaviour
 
         placedObjectDisplay.SetItem(handItem);
         playerHand.ClearHandItem();
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.playerPlaceClip);
+        }
 
         DebugLog("TryPlaceItem() 成功：已放置物品 = " + handItem.itemName);
 

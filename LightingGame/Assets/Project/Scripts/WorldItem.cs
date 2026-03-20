@@ -10,6 +10,11 @@ public class WorldItem : MonoBehaviour
 
         if (success)
         {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.playerPickupClip);
+            }
+
             Destroy(gameObject);
         }
     }

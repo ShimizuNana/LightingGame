@@ -35,6 +35,11 @@ public class DialogueUI : MonoBehaviour
             yield return new WaitForSeconds(lineDisplayTime);
         }
 
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.npcTalkClip);
+        }
+
         HideDialogue();
         isPlaying = false;
 

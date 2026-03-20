@@ -35,7 +35,10 @@ public class ChangeConsole : MonoBehaviour
         {
             redViewOverlay.gameObject.SetActive(false);
         }
-
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.playerPlaceClip);
+        }
         DebugLog("Start Íê³É");
     }
 
