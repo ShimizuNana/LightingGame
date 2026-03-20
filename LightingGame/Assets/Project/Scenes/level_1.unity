@@ -1623,8 +1623,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   footstepSource: {fileID: 762906325}
-  footstepClip: {fileID: 8300000, guid: fef3c0e602405d648b95c9b40a53e481, type: 3}
-  stepInterval: 0.2
+  footstepClip: {fileID: 8300000, guid: c05532866577af84d97e64da271c2be8, type: 3}
+  stepInterval: 0.6
 --- !u!1 &187688545
 GameObject:
   m_ObjectHideFlags: 0
@@ -5457,9 +5457,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bgmSource: {fileID: 762906325}
   sfxSource: {fileID: 762906324}
-  playerPickupClip: {fileID: 8300000, guid: 264f98d8cf2efad47a8b46f4451f7593, type: 3}
+  playerPickupClip: {fileID: 8300000, guid: 4e7612e5e34011a49b1662b3ec87d886, type: 3}
   playerPlaceClip: {fileID: 8300000, guid: dcf1b790dd4aa984087526f2730418a3, type: 3}
-  consoleRotateClip: {fileID: 8300000, guid: 249d014d9e120d3448bd48ce8833e956, type: 3}
+  consoleRotateClip: {fileID: 8300000, guid: 920fa2692795adb4c813497fb4fa39d3, type: 3}
   doorOpenClip: {fileID: 8300000, guid: 860d452c964e883458452c56469753f0, type: 3}
   beamSuccessClip: {fileID: 8300000, guid: 3c19047849b7efe448be669e80c118c8, type: 3}
   exitDoorOpenClip: {fileID: 8300000, guid: b469dfdc0c76a3c45b1f61d7b8ddd8ca, type: 3}
