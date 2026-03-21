@@ -3,14 +3,17 @@ using UnityEngine;
 public class PlacedObjectDisplay : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Vector3 placedItemScale = new Vector3(1.5f, 1.5f, 1f);
 
     private ItemData currentItem;
-    private int currentRotationStep = 0;
+    private int currentRotationStep = 0; // 0~7，每步45度
 
     public void SetItem(ItemData item)
     {
         currentItem = item;
         currentRotationStep = 0;
+
+        transform.localScale = placedItemScale;
         RefreshVisual();
     }
 
@@ -25,7 +28,7 @@ public class PlacedObjectDisplay : MonoBehaviour
             spriteRenderer.enabled = false;
         }
 
-        transform.rotation = Quaternion.identity;
+        transform.localScale = Vector3.one;
     }
 
     public bool HasItem()
@@ -53,31 +56,34 @@ public class PlacedObjectDisplay : MonoBehaviour
         if (currentItem == null) return;
 
         currentRotationStep = (currentRotationStep + 1) % 8;
-        RefreshRotation();
+        RefreshVisual();
     }
 
     private void RefreshVisual()
     {
-        if (spriteRenderer != null)
+        if (spriteRenderer == null)
+            return;
+
+        if (currentItem == null)
         {
-            if (currentItem != null && currentItem.icon != null)
-            {
-                spriteRenderer.enabled = true;
-                spriteRenderer.sprite = currentItem.icon;
-            }
-            else
-            {
-                spriteRenderer.enabled = false;
-                spriteRenderer.sprite = null;
-            }
+            spriteRenderer.enabled = false;
+            spriteRenderer.sprite = null;
+            return;
         }
 
-        RefreshRotation();
-    }
+        spriteRenderer.enabled = true;
 
-    private void RefreshRotation()
-    {
-        float angle = currentRotationStep * 45f;
-        transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        // 如果有角度素材，就优先用角度素材
+        if (currentItem.angleSprites != null &&
+            currentItem.angleSprites.Length > currentRotationStep &&
+            currentItem.angleSprites[currentRotationStep] != null)
+        {
+            spriteRenderer.sprite = currentItem.angleSprites[currentRotationStep];
+        }
+        else
+        {
+            // 如果没设置角度素材，退回到 icon
+            spriteRenderer.sprite = currentItem.icon;
+        }
     }
 }

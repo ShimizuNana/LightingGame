@@ -21,6 +21,9 @@ public class ItemData : ScriptableObject
 
     [Header("Mirror Settings")]
     public bool isMirror = false;
+
+    [Header("Angle Sprites (0,45,90,135,180,225,270,315)")]
+    public Sprite[] angleSprites = new Sprite[8];
 }
 
 public enum ItemType

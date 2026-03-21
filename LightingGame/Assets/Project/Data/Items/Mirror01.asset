@@ -18,6 +18,16 @@ MonoBehaviour:
   description: 
   itemType: 2
   canPlaceOnPlacementConsole: 1
+  canPlaceOnChangeConsole: 0
   isColoredGlass: 0
   glassColor: 0
   isMirror: 1
+  angleSprites:
+  - {fileID: 21300000, guid: 5e51de0afd6bcde48ade6ecaaeb947dd, type: 3}
+  - {fileID: 21300000, guid: 9a1515350c784124d96cbb7c0deb5ef0, type: 3}
+  - {fileID: 21300000, guid: 6ea91dc52a53bf6409d13619418dec09, type: 3}
+  - {fileID: 21300000, guid: 63d0260abeb6beb4c80ff71a9851b1b9, type: 3}
+  - {fileID: 21300000, guid: 5e51de0afd6bcde48ade6ecaaeb947dd, type: 3}
+  - {fileID: 21300000, guid: 9a1515350c784124d96cbb7c0deb5ef0, type: 3}
+  - {fileID: 21300000, guid: 6ea91dc52a53bf6409d13619418dec09, type: 3}
+  - {fileID: 21300000, guid: 63d0260abeb6beb4c80ff71a9851b1b9, type: 3}

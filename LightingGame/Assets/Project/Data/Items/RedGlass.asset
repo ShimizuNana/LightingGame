@@ -22,3 +22,12 @@ MonoBehaviour:
   isColoredGlass: 1
   glassColor: 1
   isMirror: 0
+  angleSprites:
+  - {fileID: 21300000, guid: 88ea48d61151a2944800ebdc36fd7c99, type: 3}
+  - {fileID: 21300000, guid: c69aa7855cb3ead4ca2f461afc841156, type: 3}
+  - {fileID: 21300000, guid: 2b8b8ac9e3b6b4b489103a07fde93a84, type: 3}
+  - {fileID: 21300000, guid: 448a480a8fe25914396f3b176a701038, type: 3}
+  - {fileID: 21300000, guid: 88ea48d61151a2944800ebdc36fd7c99, type: 3}
+  - {fileID: 21300000, guid: c69aa7855cb3ead4ca2f461afc841156, type: 3}
+  - {fileID: 21300000, guid: 2b8b8ac9e3b6b4b489103a07fde93a84, type: 3}
+  - {fileID: 21300000, guid: 448a480a8fe25914396f3b176a701038, type: 3}
