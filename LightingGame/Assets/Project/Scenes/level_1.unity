@@ -23800,9 +23800,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   requiredItemID: Newspaper
-  dialogueLines:
-  - Thank you, adventurer. You may pass.
-  - 'Remember this: let the light guide you.'
+  noItemDialogueLines:
+  - Greetings, adventurer.
+  - Ahead lies the Temple of Light, where ancient heroes rest.
+  - Only those who carry the proper token may enter.
+  wrongItemDialogueLines:
+  - This is not the item I want. There might be some inscriptions on the key.
+  successDialogueLines:
+  - Thank you, adventurer. You can pass.
+  - 'Remember: let the light guide you.'
   - Some truths appear only in the right color.
   targetDoor: {fileID: 419586519}
   dialogueUI: {fileID: 346107034}

@@ -5,8 +5,12 @@ public class NpcQuestReceiver : MonoBehaviour
     [Header("Quest Requirement")]
     [SerializeField] private string requiredItemID = "Newspaper";
 
-    [Header("Dialogue")]
-    [TextArea][SerializeField] private string[] dialogueLines;
+    [Header("Dialogue - Wrong / Missing Item")]
+    [TextArea][SerializeField] private string[] noItemDialogueLines;
+    [TextArea][SerializeField] private string[] wrongItemDialogueLines;
+
+    [Header("Dialogue - Correct Item")]
+    [TextArea][SerializeField] private string[] successDialogueLines;
 
     [Header("References")]
     [SerializeField] private DoorController targetDoor;
@@ -14,6 +18,8 @@ public class NpcQuestReceiver : MonoBehaviour
 
     private bool playerInRange = false;
     private bool hasCompleted = false;
+    private bool isTalking = false;
+
     private PlayerHand playerHand;
 
     private void Start()
@@ -40,58 +46,64 @@ public class NpcQuestReceiver : MonoBehaviour
     private void Update()
     {
         if (!playerInRange) return;
-        if (hasCompleted) return;
+        if (isTalking) return;
 
         if (Input.GetKeyDown(KeyCode.E))
         {
-            TryGiveItemToNpc();
+            InteractWithNpc();
         }
     }
 
-    private void TryGiveItemToNpc()
+    private void InteractWithNpc()
     {
-        if (playerHand == null) return;
+        // 如果任务已经完成，仍然可以播放完成后的普通对话
+        if (hasCompleted)
+        {
+            PlayDialogue(successDialogueLines, null);
+            return;
+        }
+
+        if (playerHand == null)
+        {
+            Debug.LogWarning("NpcQuestReceiver: 没有找到 PlayerHand");
+            return;
+        }
+
+        // 情况1：手上没有任何物品
         if (!playerHand.HasItem())
         {
-            Debug.Log("玩家手上没有物品，无法交给NPC");
+            PlayDialogue(noItemDialogueLines, null);
             return;
         }
 
         ItemData handItem = playerHand.GetHandItem();
 
+        // 情况2：手上物品为空
         if (handItem == null)
         {
-            Debug.Log("手上的物品为空");
+            PlayDialogue(noItemDialogueLines, null);
             return;
         }
 
+        // 情况3：手上拿的不是正确物品
         if (handItem.itemID != requiredItemID)
         {
-            Debug.Log("这不是NPC需要的物品");
+            PlayDialogue(wrongItemDialogueLines, null);
             return;
         }
 
-        // 销毁物品：直接从手上清掉，不回背包，不回地图
-        playerHand.ClearHandItem();
-
-        Debug.Log("已将物品交给NPC：" + handItem.itemName);
-
+        // 情况4：手上拿的是正确物品
+        playerHand.ClearHandItem(); // 消耗掉，不回背包，不回地图
         hasCompleted = true;
 
-        if (dialogueUI != null)
-        {
-            dialogueUI.PlayDialogue(dialogueLines, OnDialogueFinished);
-        }
-        else
-        {
-            Debug.LogWarning("DialogueUI 没有绑定，直接开门");
-            OnDialogueFinished();
-        }
+        Debug.Log("已将正确物品交给 NPC：" + handItem.itemName);
+
+        PlayDialogue(successDialogueLines, OnDialogueFinished);
     }
 
     private void OnDialogueFinished()
     {
-        Debug.Log("NPC 对话结束");
+        Debug.Log("NPC 正确物品对话结束");
 
         if (targetDoor != null)
         {
@@ -101,5 +113,29 @@ public class NpcQuestReceiver : MonoBehaviour
         {
             Debug.LogWarning("目标门没有绑定");
         }
+    }
+
+    private void PlayDialogue(string[] lines, System.Action onComplete)
+    {
+        if (dialogueUI == null)
+        {
+            Debug.LogWarning("DialogueUI 没有绑定");
+            onComplete?.Invoke();
+            return;
+        }
+
+        if (lines == null || lines.Length == 0)
+        {
+            Debug.LogWarning("对话内容为空");
+            onComplete?.Invoke();
+            return;
+        }
+
+        isTalking = true;
+        dialogueUI.PlayDialogue(lines, () =>
+        {
+            isTalking = false;
+            onComplete?.Invoke();
+        });
     }
 }
