@@ -7,6 +7,6 @@ public class MenuManager : MonoBehaviour
     public void StartGame()
     {
         // 括号里的名字必须和你截图里的场景名字一模一样
-        SceneManager.LoadScene("level_1"); 
+        SceneManager.LoadScene("IntroScene"); 
     }
 }

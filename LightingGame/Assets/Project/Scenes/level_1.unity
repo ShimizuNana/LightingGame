@@ -20520,8 +20520,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4289823743
-  m_fontColor: {r: 1, g: 0.514151, b: 0.6932483, a: 1}
+    rgba: 4292927712
+  m_fontColor: {r: 0.8773585, g: 0.8773585, b: 0.8773585, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -20538,8 +20538,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
-  m_fontSizeBase: 72
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -23801,8 +23801,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   requiredItemID: Newspaper
   dialogueLines:
-  - Hello
-  - Door is Opened
+  - Thank you, adventurer. You may pass.
+  - 'Remember this: let the light guide you.'
+  - Some truths appear only in the right color.
   targetDoor: {fileID: 419586519}
   dialogueUI: {fileID: 346107034}
 --- !u!61 &2112755729
