@@ -27,17 +27,26 @@ public class DialogueUI : MonoBehaviour
     private IEnumerator PlayDialogueCoroutine(string[] lines, Action onComplete)
     {
         isPlaying = true;
-        dialoguePanel.SetActive(true);
+
+        if (dialoguePanel != null)
+        {
+            dialoguePanel.SetActive(true);
+        }
 
         for (int i = 0; i < lines.Length; i++)
         {
-            dialogueText.text = lines[i];
-            yield return new WaitForSeconds(lineDisplayTime);
-        }
+            if (dialogueText != null)
+            {
+                dialogueText.text = lines[i];
+            }
 
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.npcTalkClip);
+            // 每显示一行字幕时播放一次 NPC 说话音效
+            if (AudioManager.Instance != null && AudioManager.Instance.npcTalkClip != null)
+            {
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.npcTalkClip);
+            }
+
+            yield return new WaitForSeconds(lineDisplayTime);
         }
 
         HideDialogue();
