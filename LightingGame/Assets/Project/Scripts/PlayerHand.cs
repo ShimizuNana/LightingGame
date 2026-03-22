@@ -48,7 +48,7 @@ public class PlayerHand : MonoBehaviour
 
             if (handNameText != null)
             {
-                handNameText.text = "手上无物品";
+                handNameText.text = "None";
             }
         }
         else
